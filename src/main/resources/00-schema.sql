@@ -51,6 +51,6 @@ CREATE TABLE "administrators" (
 
 CREATE TABLE "administrators_to_agents" (
     "agent_uuid" UUID NOT NULL UNIQUE,
-    "administator_uuid" UUID,
+    "administrator_uuid" UUID,
     PRIMARY KEY("agent_uuid")
 );
