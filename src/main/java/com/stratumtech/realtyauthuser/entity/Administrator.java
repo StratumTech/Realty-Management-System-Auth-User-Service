@@ -1,26 +1,36 @@
 package com.stratumtech.realtyauthuser.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import java.util.UUID;
 
+import lombok.Data;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
+
+import jakarta.persistence.*;
+
+@Data
 @Entity
 @Table(name = "administrators")
-@Data
 @EqualsAndHashCode(callSuper = true)
 public class Administrator extends User {
+
     @Id
-    @Column(name = "admin_uuid")
-    private UUID adminUuid = UUID.randomUUID();
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "admin_uuid", nullable = false, updatable = false)
+    private UUID adminUuid;
 
-    @Column(name = "region_id")
-    private Integer regionId;
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
-    @Column(name = "referal")
-    private String referal;
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_id")
+    private Region region;
+
+    @Column(name = "referral", unique = true)
+    private String referral;
 }
