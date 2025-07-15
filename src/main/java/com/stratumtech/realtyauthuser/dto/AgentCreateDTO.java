@@ -12,7 +12,7 @@ import com.stratumtech.realtyauthuser.validation.PhoneNumber;
 
 @Getter
 @Builder
-public class AgentCreateDTO {
+public final class AgentCreateDTO {
 
     @NotNull
     @NotEmpty

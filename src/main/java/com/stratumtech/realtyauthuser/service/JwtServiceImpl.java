@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.UUID;
 
 @Service
-public class AuthJwtService {
+public class JwtServiceImpl {
     private static final byte[] SECRET = "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6".getBytes();
     private static final int TOKEN_TTL_SECONDS = 24 * 60 * 60;
 
