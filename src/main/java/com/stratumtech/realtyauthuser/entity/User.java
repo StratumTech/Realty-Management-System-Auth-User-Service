@@ -6,15 +6,9 @@ import lombok.Data;
 import java.sql.Timestamp;
 import java.util.UUID;
 
-@Entity
+@MappedSuperclass
 @Data
-@Table(name = "users")
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class User {
-    @Id
-    @Column(name = "user_uuid")
-    private UUID userUuid = UUID.randomUUID();
-
     @Column(name = "role_id")
     private Integer roleId;
 
