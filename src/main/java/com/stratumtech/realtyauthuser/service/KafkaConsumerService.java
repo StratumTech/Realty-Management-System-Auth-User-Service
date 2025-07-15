@@ -8,6 +8,7 @@ import com.stratumtech.realtyauthuser.entity.AdministratorToAgent;
 import com.stratumtech.realtyauthuser.entity.Agent;
 import com.stratumtech.realtyauthuser.repository.AdministratorRepository;
 import com.stratumtech.realtyauthuser.repository.AdministratorToAgentRepository;
+import com.stratumtech.realtyauthuser.service.AgentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -23,16 +24,16 @@ public class KafkaConsumerService {
 
     private final AdministratorRepository administratorRepository;
     private final AdministratorToAgentRepository administratorToAgentRepository;
-    private final UserService userService;
+    private final AgentService agentService;
     private final PasswordEncoder passwordEncoder;
 
     public KafkaConsumerService(AdministratorRepository administratorRepository,
                                AdministratorToAgentRepository administratorToAgentRepository,
-                               UserService userService,
+                               AgentService agentService,
                                PasswordEncoder passwordEncoder) {
         this.administratorRepository = administratorRepository;
         this.administratorToAgentRepository = administratorToAgentRepository;
-        this.userService = userService;
+        this.agentService = agentService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -74,7 +75,7 @@ public class KafkaConsumerService {
         agentCreateDTO.setPreferChannel(dto.getPreferChannel());
         agentCreateDTO.setImageUrl(null);
 
-        Agent agent = userService.createAgent(agentCreateDTO);
+        Agent agent = agentService.createAgent(agentCreateDTO);
 
         // Связь с администратором
         UUID adminUuid = dto.getApproverAdminUuid();
