@@ -1,13 +1,21 @@
 package com.stratumtech.realtyauthuser.dto;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Builder;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class LoginDTO {
-    private String email;
-    private String password;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
+
+@Getter
+@Builder
+public final class LoginDTO {
+
+    @Email
+    @NotNull
+    private final String email;
+
+    @NotNull
+    @NotEmpty
+    private final String password;
 }

@@ -1,16 +1,17 @@
 package com.stratumtech.realtyauthuser.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Builder;
 
-@Data
-public class RegionalAdminApprovalDTO {
-    private String name;
-    private String patronymic;
-    private String surname;
-    private String email;
-    private String phone;
-    private String telegramTag;
-    private String preferChannel;
-    private Integer regionId;
-    private String referralCode;
+@Getter
+@Builder
+public final class RegionalAdminApprovalDTO {
+    private final String name;
+    private final String patronymic;
+    private final String surname;
+    private final String email;
+    private final String phone;
+    private final String telegramTag;
+    private final String preferChannel;
+    private final Integer regionId;
 } 

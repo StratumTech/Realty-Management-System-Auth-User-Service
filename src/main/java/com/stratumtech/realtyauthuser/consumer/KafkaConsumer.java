@@ -4,18 +4,15 @@ import com.stratumtech.realtyauthuser.dto.RegionalAdminApprovalDTO;
 import com.stratumtech.realtyauthuser.dto.AgentApprovalDTO;
 import com.stratumtech.realtyauthuser.dto.AgentCreateDTO;
 import com.stratumtech.realtyauthuser.entity.Administrator;
-import com.stratumtech.realtyauthuser.entity.AdministratorToAgent;
 import com.stratumtech.realtyauthuser.entity.Agent;
 import com.stratumtech.realtyauthuser.repository.AdministratorRepository;
 import com.stratumtech.realtyauthuser.repository.AdministratorToAgentRepository;
-import com.stratumtech.realtyauthuser.service.AgentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
