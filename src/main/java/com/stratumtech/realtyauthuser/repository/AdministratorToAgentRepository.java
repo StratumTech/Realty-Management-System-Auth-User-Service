@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface AdministratorToAgentRepository extends JpaRepository<AdministratorToAgent, UUID> {
     Optional<AdministratorToAgent> findByAgentUuid(UUID agentUuid);
     Optional<AdministratorToAgent> findByAdminUuid(UUID adminUuid);
+    boolean existsByAdminUuidAndAgentUuid(UUID adminUuid, UUID agentUuid);
+    java.util.List<AdministratorToAgent> findAllByAdminUuid(UUID adminUuid);
 }
