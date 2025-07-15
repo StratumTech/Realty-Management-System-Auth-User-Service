@@ -26,4 +26,4 @@ VALUES (
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP,
     false
-);
+); 
