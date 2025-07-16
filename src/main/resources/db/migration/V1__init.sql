@@ -34,6 +34,7 @@ CREATE TABLE administrators (
 CREATE TABLE agents (
     agent_uuid UUID NOT NULL UNIQUE,
     role_id INTEGER NOT NULL,
+    admin_uuid UUID,
     name VARCHAR(255) NOT NULL,
     patronymic VARCHAR(255),
     surname VARCHAR(255) NOT NULL,
@@ -47,6 +48,7 @@ CREATE TABLE agents (
     updated_at TIMESTAMP NOT NULL,
     is_blocked BOOLEAN NOT NULL,
     PRIMARY KEY(agent_uuid)
+
 );
 
 CREATE TABLE administrators_to_agents (
