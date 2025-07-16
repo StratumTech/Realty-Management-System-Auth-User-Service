@@ -28,6 +28,8 @@ dependencies {
 	implementation 'org.springframework.kafka:spring-kafka:3.2.2'
 	implementation 'org.flywaydb:flyway-core:10.14.0'
 	implementation 'org.flywaydb:flyway-database-postgresql:10.14.0'
+	implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+	implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
 	runtimeOnly 'org.postgresql:postgresql'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -43,4 +45,11 @@ tasks.named('bootJar') {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// Ensure secrets file is loaded if present
+bootRun {
+    if (file("src/main/resources/application-secrets.properties").exists()) {
+        systemProperty "spring.config.additional-location", "classpath:application-secrets.properties"
+    }
 }
