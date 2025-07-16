@@ -1,15 +1,17 @@
 package com.stratumtech.realtyauthuser.dto;
 
-import java.util.Map;
+import lombok.Data;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-import jakarta.validation.constraints.NotNull;
-
-@Getter
-@RequiredArgsConstructor
-public final class AgentUpdateDTO {
-    @NotNull
-    private final Map<String, Object> changes;
+@Data
+public class AgentUpdateDTO {
+    private String name;
+    private String patronymic;
+    private String surname;
+    private String email;
+    private String phone;
+    private String telegramTag;
+    private String preferChannel;
+    private String imageUrl;
+    private String password;
+    private String role;
 }
