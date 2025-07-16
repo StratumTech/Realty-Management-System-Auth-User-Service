@@ -23,7 +23,7 @@ CREATE TABLE administrators (
     password VARCHAR(255) NOT NULL,
     telegram_tag VARCHAR(255) NOT NULL,
     prefer_channel VARCHAR(255) NOT NULL,
-    referal VARCHAR(255) UNIQUE,
+    referral VARCHAR(255) UNIQUE,
     image_url VARCHAR(255),
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,

@@ -2,9 +2,7 @@ package com.stratumtech.realtyauthuser.entity;
 
 import java.util.UUID;
 
-import lombok.Data;
-import lombok.ToString;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import jakarta.persistence.*;
 
@@ -15,6 +13,7 @@ import jakarta.persistence.*;
 public class Administrator extends User {
 
     @Id
+    @Getter(AccessLevel.NONE)
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "admin_uuid", nullable = false, updatable = false)
     private UUID adminUuid;
@@ -33,4 +32,9 @@ public class Administrator extends User {
 
     @Column(name = "referral", unique = true)
     private String referral;
+
+    @Override
+    public UUID getId() {
+        return this.adminUuid;
+    }
 }

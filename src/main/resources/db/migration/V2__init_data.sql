@@ -10,7 +10,7 @@ INSERT INTO regions (region_id, name, created_at) VALUES
 (2, 'South Region', CURRENT_TIMESTAMP);
 
 -- Инициализация глобального администратора
-INSERT INTO administrators (admin_uuid, role_id, region_id, name, surname, email, phone, password, telegram_tag, prefer_channel, referal, created_at, updated_at, is_blocked)
+INSERT INTO administrators (admin_uuid, role_id, region_id, name, surname, email, phone, password, telegram_tag, prefer_channel, referral, created_at, updated_at, is_blocked)
 VALUES (
     gen_random_uuid(),
     1, -- ADMIN

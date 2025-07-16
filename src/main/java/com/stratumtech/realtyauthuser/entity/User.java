@@ -1,5 +1,6 @@
 package com.stratumtech.realtyauthuser.entity;
 
+import java.util.UUID;
 import java.time.Instant;
 import java.sql.Timestamp;
 
@@ -58,4 +59,8 @@ public abstract class User {
     protected void onUpdate() {
         this.updatedAt = Timestamp.from(Instant.now());
     }
+
+    public abstract UUID getId();
+    public abstract Role getRole();
+    public abstract Region getRegion();
 }
