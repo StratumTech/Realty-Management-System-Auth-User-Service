@@ -13,8 +13,8 @@ import jakarta.persistence.*;
 public class Region {
 
     @Id
-    @Column(name = "region_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "region_id", nullable = false)
     private Integer id;
 
     @Column(name = "name", nullable = false, unique = true)

@@ -4,6 +4,7 @@ import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -12,8 +13,12 @@ import java.util.UUID;
 
 @Service
 public class JwtServiceImpl {
-    private static final byte[] SECRET = "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6".getBytes();
+    private final byte[] secret;
     private static final int TOKEN_TTL_SECONDS = 24 * 60 * 60;
+
+    public JwtServiceImpl(@Value("${jwt.secret}") String secret) {
+        this.secret = secret.getBytes();
+    }
 
     public String generateToken(UUID userId, String role, int region, String referralCode) throws Exception {
         Instant now = Instant.now();
@@ -32,7 +37,7 @@ public class JwtServiceImpl {
                 new JWSHeader(JWSAlgorithm.HS256),
                 claims.build()
         );
-        jwt.sign(new MACSigner(SECRET));
+        jwt.sign(new MACSigner(secret));
         return jwt.serialize();
     }
 } 

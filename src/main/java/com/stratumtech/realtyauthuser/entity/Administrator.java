@@ -33,4 +33,7 @@ public class Administrator extends User {
 
     @Column(name = "referral", unique = true)
     private String referral;
+
+    @OneToMany(mappedBy = "administrator")
+    private java.util.List<Agent> agents;
 }
