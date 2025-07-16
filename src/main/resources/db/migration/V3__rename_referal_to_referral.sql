@@ -1,0 +1,1 @@
+  ALTER TABLE administrators RENAME COLUMN referal TO referral;

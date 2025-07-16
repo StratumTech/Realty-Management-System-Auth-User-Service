@@ -17,49 +17,39 @@ repositories {
 	mavenCentral()
 }
 
-ext {
-	set('springCloudVersion', "2025.0.0")
-}
-
 dependencies {
-	// Spring Boot Starters
-	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
-
-	// Databases
-	implementation 'org.flywaydb:flyway-core'
-	implementation 'org.flywaydb:flyway-database-postgresql'
-	runtimeOnly 'org.postgresql:postgresql'
-
-	// JWT
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
 	implementation 'com.nimbusds:nimbus-jose-jwt:10.3.1'
-
-	// Cloud
-	implementation 'org.springframework.cloud:spring-cloud-starter-config'
-	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-
-	// Kafka
+	implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
 	implementation 'org.springframework.kafka:spring-kafka:3.2.2'
-
-	// Utils
+	implementation 'org.flywaydb:flyway-core:10.14.0'
+	implementation 'org.flywaydb:flyway-database-postgresql:10.14.0'
+	implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+	implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
+	runtimeOnly 'org.postgresql:postgresql'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	implementation 'org.mapstruct:mapstruct:1.6.3'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
-
-	// Testing
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-dependencyManagement {
-	imports {
-		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-	}
+tasks.named('bootJar') {
+	archiveFileName = 'com.stratumtech-user-service-0.0.1-SNAPSHOT.jar'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// Ensure secrets file is loaded if present
+bootRun {
+    if (file("src/main/resources/application-secrets.properties").exists()) {
+        systemProperty "spring.config.additional-location", "classpath:application-secrets.properties"
+    }
 }

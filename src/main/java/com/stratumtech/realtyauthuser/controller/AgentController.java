@@ -3,7 +3,8 @@ package com.stratumtech.realtyauthuser.controller;
 import com.stratumtech.realtyauthuser.entity.Agent;
 import com.stratumtech.realtyauthuser.service.AgentService;
 import com.stratumtech.realtyauthuser.dto.AgentUpdateDTO;
-import com.stratumtech.realtyauthuser.repository.AdministratorToAgentRepository;
+import com.stratumtech.realtyauthuser.dto.AgentDTO;
+import com.stratumtech.realtyauthuser.dto.mapper.AgentMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,11 +18,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/agents")
 public class AgentController {
     private final AgentService agentService;
-    private final AdministratorToAgentRepository adminToAgentRepo;
+    private final AgentMapper agentMapper;
 
-    public AgentController(AgentService agentService, AdministratorToAgentRepository adminToAgentRepo) {
+    public AgentController(AgentService agentService, AgentMapper agentMapper) {
         this.agentService = agentService;
-        this.adminToAgentRepo = adminToAgentRepo;
+        this.agentMapper = agentMapper;
     }
 
     private String getRole() {
@@ -41,27 +42,26 @@ public class AgentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Agent>> getAllAgents() {
+    public ResponseEntity<List<AgentDTO>> getAllAgents() {
         String role = getRole();
         UUID userUuid = getUserUuid();
         if (!"ROLE_REGIONAL_ADMIN".equals(role)) {
             return ResponseEntity.status(403).build();
         }
         // Получаем только агентов, связанных с этим админом
-        var links = adminToAgentRepo.findAllByAdminUuid(userUuid);
-        var agentUuids = links.stream().map(link -> link.getAgentUuid()).collect(Collectors.toSet());
         List<Agent> agents = agentService.getAllAgents().stream()
-                .filter(agent -> agentUuids.contains(agent.getAgentUuid()))
+                .filter(agent -> agent.getAdministrator() != null && userUuid.equals(agent.getAdministrator().getAdminUuid()))
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(agents);
+        return ResponseEntity.ok(agentMapper.toDtoList(agents));
     }
 
     @GetMapping("/{agentUuid}")
-    public ResponseEntity<Agent> getAgent(@PathVariable UUID agentUuid) {
+    public ResponseEntity<AgentDTO> getAgent(@PathVariable UUID agentUuid) {
         String role = getRole();
         UUID userUuid = getUserUuid();
         if ("ROLE_REGIONAL_ADMIN".equals(role)) {
-            if (!adminToAgentRepo.existsByAdminUuidAndAgentUuid(userUuid, agentUuid)) {
+            Agent agent = agentService.getAgentByUuid(agentUuid).orElse(null);
+            if (agent == null || agent.getAdministrator() == null || !userUuid.equals(agent.getAdministrator().getAdminUuid())) {
                 return ResponseEntity.status(403).build();
             }
         } else if ("ROLE_AGENT".equals(role)) {
@@ -72,17 +72,19 @@ public class AgentController {
             return ResponseEntity.status(403).build();
         }
         return agentService.getAgentByUuid(agentUuid)
+                .map(agentMapper::toDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{agentUuid}")
-    public ResponseEntity<Agent> updateAgent(@PathVariable UUID agentUuid, @RequestBody AgentUpdateDTO agentUpdate) {
+    public ResponseEntity<AgentDTO> updateAgent(@PathVariable UUID agentUuid, @RequestBody AgentUpdateDTO agentUpdate) {
         String role = getRole();
         UUID userUuid = getUserUuid();
         boolean isAgentSelf = false;
         if ("ROLE_REGIONAL_ADMIN".equals(role)) {
-            if (!adminToAgentRepo.existsByAdminUuidAndAgentUuid(userUuid, agentUuid)) {
+            Agent agent = agentService.getAgentByUuid(agentUuid).orElse(null);
+            if (agent == null || agent.getAdministrator() == null || !userUuid.equals(agent.getAdministrator().getAdminUuid())) {
                 return ResponseEntity.status(403).build();
             }
         } else if ("ROLE_AGENT".equals(role)) {
@@ -94,6 +96,7 @@ public class AgentController {
             return ResponseEntity.status(403).build();
         }
         return agentService.updateAgent(agentUuid, agentUpdate, isAgentSelf)
+                .map(agentMapper::toDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -102,8 +105,8 @@ public class AgentController {
     public ResponseEntity<?> blockAgent(@PathVariable UUID agentUuid) {
         String role = getRole();
         UUID userUuid = getUserUuid();
-        if (!"ROLE_REGIONAL_ADMIN".equals(role) ||
-            !adminToAgentRepo.existsByAdminUuidAndAgentUuid(userUuid, agentUuid)) {
+        Agent agent = agentService.getAgentByUuid(agentUuid).orElse(null);
+        if (!"ROLE_REGIONAL_ADMIN".equals(role) || agent == null || agent.getAdministrator() == null || !userUuid.equals(agent.getAdministrator().getAdminUuid())) {
             return ResponseEntity.status(403).build();
         }
         if (agentService.blockAgent(agentUuid)) {
@@ -116,8 +119,8 @@ public class AgentController {
     public ResponseEntity<?> unblockAgent(@PathVariable UUID agentUuid) {
         String role = getRole();
         UUID userUuid = getUserUuid();
-        if (!"ROLE_REGIONAL_ADMIN".equals(role) ||
-            !adminToAgentRepo.existsByAdminUuidAndAgentUuid(userUuid, agentUuid)) {
+        Agent agent = agentService.getAgentByUuid(agentUuid).orElse(null);
+        if (!"ROLE_REGIONAL_ADMIN".equals(role) || agent == null || agent.getAdministrator() == null || !userUuid.equals(agent.getAdministrator().getAdminUuid())) {
             return ResponseEntity.status(403).build();
         }
         if (agentService.unblockAgent(agentUuid)) {
