@@ -16,3 +16,6 @@ spring.kafka.bootstrap-servers=localhost:9092
 spring.kafka.consumer.auto-offset-reset=earliest
 spring.flyway.enabled=true
 spring.flyway.locations=classpath:db/migration
+
+jwt.secret=A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6
+jwt.token.ttl=86400
