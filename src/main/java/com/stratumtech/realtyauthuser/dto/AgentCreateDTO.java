@@ -10,6 +10,8 @@ import jakarta.validation.constraints.NotEmpty;
 import com.stratumtech.realtyauthuser.validation.TelegramTag;
 import com.stratumtech.realtyauthuser.validation.PhoneNumber;
 
+import java.util.UUID;
+
 @Getter
 @Builder
 public final class AgentCreateDTO {
@@ -52,4 +54,7 @@ public final class AgentCreateDTO {
 
     @NotNull
     private final String imageUrl;
+
+    @NotNull
+    private final UUID adminUuid;
 }
