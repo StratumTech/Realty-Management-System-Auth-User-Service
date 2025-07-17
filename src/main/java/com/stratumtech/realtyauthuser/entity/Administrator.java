@@ -1,5 +1,7 @@
 package com.stratumtech.realtyauthuser.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import lombok.*;
@@ -32,6 +34,13 @@ public class Administrator extends User {
 
     @Column(name = "referral", unique = true)
     private String referral;
+
+    @OneToMany(mappedBy = "administrator")
+    private List<Agent> agents = new ArrayList<>();
+
+    public void addAgent(Agent agent){
+        agents.add(agent);
+    }
 
     @Override
     public UUID getId() {

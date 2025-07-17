@@ -63,4 +63,6 @@ public abstract class User {
     public abstract UUID getId();
     public abstract Role getRole();
     public abstract Region getRegion();
+
+    public abstract void setRole(Role role);
 }

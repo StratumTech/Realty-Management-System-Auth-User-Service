@@ -1,17 +1,14 @@
-package com.stratumtech.realtyauthuser.dto;
+package com.stratumtech.realtyauthuser.dto.request;
+
+import java.util.Arrays;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class RegionalAdminApprovalDTO {
+public final class RegionalAdminApprovalDTO {
     private String name;
     private String patronymic;
     private String surname;
@@ -19,6 +16,11 @@ public class RegionalAdminApprovalDTO {
     private String phone;
     private String telegramTag;
     private String preferChannel;
-    private Integer regionId;
-    private String referral;
+    private String imageUrl;
+    @Getter(AccessLevel.NONE)
+    private char[] password;
+
+    public char[] getPassword() {
+        return Arrays.copyOf(password, password.length);
+    }
 } 

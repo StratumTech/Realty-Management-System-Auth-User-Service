@@ -15,7 +15,7 @@ import com.stratumtech.realtyauthuser.validation.TelegramTag;
 
 @Getter
 @Builder
-public final class AgentUpdateDTO {
+public final class AdminUpdateDTO {
     @NotNull
     @NotEmpty
     private String name;
@@ -51,7 +51,7 @@ public final class AgentUpdateDTO {
     @NotNull
     @NotEmpty
     @Getter(AccessLevel.NONE)
-    private final char[] password;
+    private char[] password;
 
     public char[] getPassword() {
         return Arrays.copyOf(password, password.length);

@@ -24,6 +24,10 @@ public class Agent extends User {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_uuid")
+    private Administrator administrator;
+
     @Override
     public UUID getId() {
         return this.agentUuid;
