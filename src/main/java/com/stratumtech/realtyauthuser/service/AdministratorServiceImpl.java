@@ -1,98 +1,81 @@
 package com.stratumtech.realtyauthuser.service;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.Optional;
-
-import com.stratumtech.realtyauthuser.dto.AdministratorDTO;
-import lombok.RequiredArgsConstructor;
+import java.util.*;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.stratumtech.realtyauthuser.entity.Role;
 import com.stratumtech.realtyauthuser.entity.Administrator;
+
+import com.stratumtech.realtyauthuser.dto.AdminDTO;
+import com.stratumtech.realtyauthuser.dto.request.AdminCreateDTO;
+import com.stratumtech.realtyauthuser.dto.request.AdminUpdateDTO;
+import com.stratumtech.realtyauthuser.dto.mapper.AdministratorMapper;
+
 import com.stratumtech.realtyauthuser.repository.RoleRepository;
-import com.stratumtech.realtyauthuser.repository.RegionRepository;
 import com.stratumtech.realtyauthuser.repository.AdministratorRepository;
+
+import com.stratumtech.realtyauthuser.exception.UserNotFoundException;
+import com.stratumtech.realtyauthuser.exception.NoSuchUserRoleException;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
-public class AdministratorService {
+public class AdministratorServiceImpl
+        extends DefaultUserServiceImpl<AdminDTO, Administrator>
+        implements AdministratorService {
+
+    private final AdministratorMapper adminMapper;
+
+    private final PasswordEncoder passwordEncoder;
 
     private final RoleRepository roleRepository;
-    private final RegionRepository regionRepository;
-    private final AdministratorRepository administratorRepository;
+    private final AdministratorRepository adminRepository;
 
-    @Transactional(readOnly = true)
-    public List<AdministratorDTO> getAllAdmins() {
-        return administratorRepository.findAll();
+    public AdministratorServiceImpl(AdministratorMapper adminMapper,
+                                    PasswordEncoder passwordEncoder,
+                                    RoleRepository roleRepository,
+                                    AdministratorRepository adminRepository) {
+        super(adminMapper, adminRepository);
+        this.adminMapper = adminMapper;
+        this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
+        this.adminRepository = adminRepository;
     }
 
-    @Transactional(readOnly = true)
-    public Optional<AdministratorDTO> getAdminByUuid(UUID adminUuid) {
-        return administratorRepository.findById(adminUuid);
+    @Override
+    public AdminDTO create(AdminCreateDTO dto) {
+        Administrator admin = adminMapper.toAdmin(dto);
+        admin.setIsBlocked(false);
+
+        char[] passwordChars = dto.getPassword();
+        String rawPassword = new String(passwordChars);
+        String encodedPassword = passwordEncoder.encode(rawPassword);
+        Arrays.fill(passwordChars, '\0');
+
+        Role role = admin.getRole().getName().lines()
+                .map(String::trim)
+                .map(name ->
+                        roleRepository.findByName(name)
+                                .orElseThrow(() -> new NoSuchUserRoleException(name))
+                )
+                .findFirst()
+                .get();
+
+        admin.setRole(role);
+        admin.setPassword(encodedPassword);
+
+        Administrator saved = adminRepository.save(admin);
+        return adminMapper.toDto(saved);
     }
 
-    public Optional<AdministratorDTO> updateAdmin(UUID adminUuid, Administrator updated) {
-        Optional<Administrator> adminOpt = administratorRepository.findById(adminUuid);
-        if (adminOpt.isPresent()) {
-            Administrator admin = adminOpt.get();
-            if (updated.getName() != null) admin.setName(updated.getName());
-            if (updated.getPatronymic() != null) admin.setPatronymic(updated.getPatronymic());
-            if (updated.getSurname() != null) admin.setSurname(updated.getSurname());
-            if (updated.getEmail() != null) admin.setEmail(updated.getEmail());
-            if (updated.getPhone() != null) admin.setPhone(updated.getPhone());
-            if (updated.getTelegramTag() != null) admin.setTelegramTag(updated.getTelegramTag());
-            if (updated.getPreferChannel() != null) admin.setPreferChannel(updated.getPreferChannel());
-            if (updated.getReferral() != null) admin.setReferral(updated.getReferral());
-            if (updated.getRole() != null) admin.setRole(updated.getRole());
-            if (updated.getRegion() != null) admin.setRegion(updated.getRegion());
-            administratorRepository.save(admin);
-            return Optional.of(admin);
-        }
-        return Optional.empty();
+    @Override
+    public Optional<AdminDTO> update(UUID agentUuid, AdminUpdateDTO dto) {
+        Administrator admin = adminRepository.findById(agentUuid)
+                .orElseThrow(() -> new UserNotFoundException(agentUuid));
+        adminMapper.updateAdminFromDto(dto, admin);
+        Administrator updated = adminRepository.save(admin);
+        return Optional.of(adminMapper.toDto(updated));
     }
-
-    public boolean blockAdmin(UUID adminUuid) {
-        Optional<Administrator> adminOpt = administratorRepository.findById(adminUuid);
-        if (adminOpt.isPresent()) {
-            Administrator admin = adminOpt.get();
-            admin.setIsBlocked(true);
-            administratorRepository.save(admin);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean unblockAdmin(UUID adminUuid) {
-        Optional<Administrator> adminOpt = administratorRepository.findById(adminUuid);
-        if (adminOpt.isPresent()) {
-            Administrator admin = adminOpt.get();
-            admin.setIsBlocked(false);
-            administratorRepository.save(admin);
-            return true;
-        }
-        return false;
-    }
-
-    public Optional<AdministratorDTO> updateAdmin(UUID adminUuid, Administrator updated) {
-        Optional<Administrator> adminOpt = administratorRepository.findById(adminUuid);
-        if (adminOpt.isPresent()) {
-            Administrator admin = adminOpt.get();
-            if (updated.getName() != null) admin.setName(updated.getName());
-            if (updated.getPatronymic() != null) admin.setPatronymic(updated.getPatronymic());
-            if (updated.getSurname() != null) admin.setSurname(updated.getSurname());
-            if (updated.getEmail() != null) admin.setEmail(updated.getEmail());
-            if (updated.getPhone() != null) admin.setPhone(updated.getPhone());
-            if (updated.getTelegramTag() != null) admin.setTelegramTag(updated.getTelegramTag());
-            if (updated.getPreferChannel() != null) admin.setPreferChannel(updated.getPreferChannel());
-            if (updated.getReferral() != null) admin.setReferral(updated.getReferral());
-            if (updated.getRole() != null) admin.setRole(updated.getRole());
-            if (updated.getRegion() != null) admin.setRegion(updated.getRegion());
-            administratorRepository.save(admin);
-            return Optional.of(admin);
-        }
-        return Optional.empty();
-    }
-} 
+}
