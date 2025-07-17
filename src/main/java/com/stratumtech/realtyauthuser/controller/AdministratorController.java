@@ -1,111 +1,101 @@
 package com.stratumtech.realtyauthuser.controller;
 
-import com.stratumtech.realtyauthuser.dto.AdministratorDTO;
-import com.stratumtech.realtyauthuser.dto.mapper.AdministratorMapper;
-import com.stratumtech.realtyauthuser.entity.Administrator;
-import com.stratumtech.realtyauthuser.service.AdministratorService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.web.bind.annotation.*;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.access.annotation.Secured;
+
+import com.stratumtech.realtyauthuser.dto.AdminDTO;
+import com.stratumtech.realtyauthuser.dto.request.AdminUpdateDTO;
+
+import com.stratumtech.realtyauthuser.service.AdministratorService;
+
+import com.stratumtech.realtyauthuser.exception.UserNotFoundException;
+import com.stratumtech.realtyauthuser.exception.FailedToUpdateUserException;
+
+@Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/admins")
 public class AdministratorController {
-    private final AdministratorService administratorService;
-    private final AdministratorMapper administratorMapper;
 
-    public AdministratorController(AdministratorService administratorService, AdministratorMapper administratorMapper) {
-        this.administratorService = administratorService;
-        this.administratorMapper = administratorMapper;
-    }
-
-    private String getRole() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getAuthorities().isEmpty()) return null;
-        return auth.getAuthorities().iterator().next().getAuthority();
-    }
-
-    private UUID getUserUuid() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getPrincipal() == null) return null;
-        try {
-            return UUID.fromString(auth.getPrincipal().toString());
-        } catch (Exception e) {
-            return null;
-        }
-    }
+    private final AdministratorService adminService;
 
     @GetMapping
-    public ResponseEntity<List<AdministratorDTO>> getAllAdmins() {
-        String role = getRole();
-        if (!"ROLE_ADMIN".equals(role)) {
-            return ResponseEntity.status(403).build();
-        }
-        List<AdministratorDTO> admins = administratorMapper.toDtoList(administratorService.getAllAdmins());
+    @Secured("ROLE_ADMIN")
+    public ResponseEntity<List<AdminDTO>> getAllAdmins(Authentication authentication) {
+        final var userUuid = (UUID) authentication.getPrincipal();
+
+        List<AdminDTO> admins = adminService.getAll().stream()
+                .dropWhile(admin -> admin.getAdminUuid().equals(userUuid))
+                .toList();
+
         return ResponseEntity.ok(admins);
     }
 
     @GetMapping("/{adminUuid}")
-    public ResponseEntity<AdministratorDTO> getAdmin(@PathVariable UUID adminUuid) {
-        String role = getRole();
-        UUID userUuid = getUserUuid();
-        if ("ROLE_ADMIN".equals(role) || ("ROLE_REGIONAL_ADMIN".equals(role) && userUuid.equals(adminUuid))) {
-            return administratorService.getAdminByUuid(adminUuid)
-                    .map(administratorMapper::toDto)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+    @Secured({"ROLE_ADMIN", "ROLE_REGIONAL_ADMIN"})
+    public ResponseEntity<AdminDTO> getAdmin(@PathVariable UUID adminUuid,
+                                             Authentication authentication) {
+        final var userUuid = (UUID) authentication.getPrincipal();
+
+        String userRole = authentication.getAuthorities()
+                            .stream().findFirst().get().getAuthority();
+
+        if(userRole.equals("ROLE_REGIONAL_ADMIN")) {
+            if(!adminUuid.equals(userUuid)){
+                log.warn("Trying to find admin with uuid {}", adminUuid);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
         }
-        return ResponseEntity.status(403).build();
+
+        AdminDTO admin = adminService.getByUuid(adminUuid)
+                .orElseThrow(() -> new UserNotFoundException(adminUuid));
+
+        return ResponseEntity.ok(admin);
     }
 
     @PutMapping("/{adminUuid}")
-    public ResponseEntity<AdministratorDTO> updateAdmin(@PathVariable UUID adminUuid, @RequestBody AdministratorDTO updateDto) {
-        String role = getRole();
-        UUID userUuid = getUserUuid();
-        if ("ROLE_ADMIN".equals(role) || ("ROLE_REGIONAL_ADMIN".equals(role) && userUuid.equals(adminUuid))) {
-            Administrator updated = new Administrator();
-            updated.setName(updateDto.getName());
-            updated.setPatronymic(updateDto.getPatronymic());
-            updated.setSurname(updateDto.getSurname());
-            updated.setEmail(updateDto.getEmail());
-            updated.setPhone(updateDto.getPhone());
-            updated.setTelegramTag(updateDto.getTelegramTag());
-            updated.setPreferChannel(updateDto.getPreferChannel());
-            updated.setReferral(updateDto.getReferral());
-            // role и region не обновляем через этот эндпоинт для безопасности
-            return administratorService.updateAdmin(adminUuid, updated)
-                    .map(administratorMapper::toDto)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+    @Secured({"ROLE_REGIONAL_ADMIN"})
+    public ResponseEntity<AdminDTO> updateAdmin(@PathVariable UUID adminUuid,
+                                                @RequestBody AdminUpdateDTO adminUpdate,
+                                                Authentication authentication
+    ) {
+        final var userUuid = (UUID) authentication.getPrincipal();
+
+        if(!userUuid.equals(adminUuid)) {
+            log.warn("Trying to update admin with uuid {}", adminUuid);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        return ResponseEntity.status(403).build();
+
+        AdminDTO updatedAdmin = adminService.update(adminUuid, adminUpdate)
+                .orElseThrow(() -> new FailedToUpdateUserException(adminUuid));
+
+        return ResponseEntity.ok(updatedAdmin);
     }
 
     @PutMapping("/{adminUuid}/block")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<?> blockAdmin(@PathVariable UUID adminUuid) {
-        String role = getRole();
-        if (!"ROLE_ADMIN".equals(role)) {
-            return ResponseEntity.status(403).build();
-        }
-        if (administratorService.blockAdmin(adminUuid)) {
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+        return adminService.block(adminUuid)
+                ? ResponseEntity.ok().build()
+                : ResponseEntity.unprocessableEntity().build();
     }
 
     @PutMapping("/{adminUuid}/unblock")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<?> unblockAdmin(@PathVariable UUID adminUuid) {
-        String role = getRole();
-        if (!"ROLE_ADMIN".equals(role)) {
-            return ResponseEntity.status(403).build();
-        }
-        if (administratorService.unblockAdmin(adminUuid)) {
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+        return adminService.unblock(adminUuid)
+                ? ResponseEntity.ok().build()
+                : ResponseEntity.unprocessableEntity().build();
     }
 }
