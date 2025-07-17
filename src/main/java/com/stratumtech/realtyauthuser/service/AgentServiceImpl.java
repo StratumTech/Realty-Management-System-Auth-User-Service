@@ -2,6 +2,7 @@ package com.stratumtech.realtyauthuser.service;
 
 import java.util.*;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,7 @@ import com.stratumtech.realtyauthuser.repository.AdministratorRepository;
 import com.stratumtech.realtyauthuser.exception.UserNotFoundException;
 import com.stratumtech.realtyauthuser.exception.NoSuchUserRoleException;
 
+@Slf4j
 @Service
 @Transactional
 public class AgentServiceImpl extends DefaultUserServiceImpl<AgentDTO, Agent> implements AgentService {
@@ -51,6 +53,8 @@ public class AgentServiceImpl extends DefaultUserServiceImpl<AgentDTO, Agent> im
     @Override
     public AgentDTO create(AgentCreateDTO dto) {
         Agent agent = agentMapper.toAgent(dto);
+        log.debug("Convert create request details to agent");
+
         agent.setIsBlocked(false);
 
         final char[] passwordChars = dto.getPassword();
@@ -58,6 +62,9 @@ public class AgentServiceImpl extends DefaultUserServiceImpl<AgentDTO, Agent> im
         final var encodedPassword = passwordEncoder.encode(rawPassword);
         Arrays.fill(passwordChars, '\0');
 
+        log.debug("Agent raw password has been encoded");
+
+        log.debug("Search exists role");
         Role role = agent.getRole().getName().lines()
                         .map(String::trim)
                         .map(name ->
@@ -67,6 +74,7 @@ public class AgentServiceImpl extends DefaultUserServiceImpl<AgentDTO, Agent> im
                         .findFirst()
                         .get();
 
+        log.debug("Search for referrer administrator");
         Administrator referrer = adminRepository.getReferenceById(dto.getAdminUuid());
 
         agent.setRole(role);
@@ -74,16 +82,23 @@ public class AgentServiceImpl extends DefaultUserServiceImpl<AgentDTO, Agent> im
         agent.setPassword(encodedPassword);
 
         Agent saved = agentRepository.save(agent);
+        log.debug("Save new agent to database");
 
         return agentMapper.toDto(saved);
     }
 
     @Override
     public Optional<AgentDTO> update(UUID agentUuid, AgentUpdateDTO dto) {
+        log.debug("Search exists agent");
         Agent agent = agentRepository.findById(agentUuid)
                 .orElseThrow(() -> new UserNotFoundException(agentUuid));
+
+        log.debug("Update exists agent");
         agentMapper.updateAgentFromDto(dto, agent);
+
         Agent updatedAgent = agentRepository.save(agent);
+        log.debug("Agent '{}' has been updated", agentUuid);
+
         return Optional.of(agentMapper.toDto(updatedAgent));
     }
 }

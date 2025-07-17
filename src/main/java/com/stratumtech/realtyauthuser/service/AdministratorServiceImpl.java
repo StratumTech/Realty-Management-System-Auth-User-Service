@@ -2,6 +2,7 @@ package com.stratumtech.realtyauthuser.service;
 
 import java.util.*;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +21,7 @@ import com.stratumtech.realtyauthuser.repository.AdministratorRepository;
 import com.stratumtech.realtyauthuser.exception.UserNotFoundException;
 import com.stratumtech.realtyauthuser.exception.NoSuchUserRoleException;
 
+@Slf4j
 @Service
 @Transactional
 public class AdministratorServiceImpl
@@ -47,13 +49,18 @@ public class AdministratorServiceImpl
     @Override
     public AdminDTO create(AdminCreateDTO dto) {
         Administrator admin = adminMapper.toAdmin(dto);
+        log.debug("Convert create request details to admin");
+
         admin.setIsBlocked(false);
 
-        char[] passwordChars = dto.getPassword();
-        String rawPassword = new String(passwordChars);
-        String encodedPassword = passwordEncoder.encode(rawPassword);
+        final char[] passwordChars = dto.getPassword();
+        final var rawPassword = new String(passwordChars);
+        final var encodedPassword = passwordEncoder.encode(rawPassword);
         Arrays.fill(passwordChars, '\0');
 
+        log.debug("Admin raw password has been encoded");
+
+        log.debug("Search exists role");
         Role role = admin.getRole().getName().lines()
                 .map(String::trim)
                 .map(name ->
@@ -67,15 +74,23 @@ public class AdministratorServiceImpl
         admin.setPassword(encodedPassword);
 
         Administrator saved = adminRepository.save(admin);
+        log.debug("Save new admin to database");
+
         return adminMapper.toDto(saved);
     }
 
     @Override
     public Optional<AdminDTO> update(UUID agentUuid, AdminUpdateDTO dto) {
+        log.debug("Search exists admin");
         Administrator admin = adminRepository.findById(agentUuid)
                 .orElseThrow(() -> new UserNotFoundException(agentUuid));
+
+        log.debug("Update exists admin");
         adminMapper.updateAdminFromDto(dto, admin);
+
         Administrator updated = adminRepository.save(admin);
+        log.debug("Admin '{}' has been updated", agentUuid);
+
         return Optional.of(adminMapper.toDto(updated));
     }
 }

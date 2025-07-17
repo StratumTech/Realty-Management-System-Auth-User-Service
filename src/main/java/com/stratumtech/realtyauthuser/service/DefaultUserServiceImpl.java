@@ -4,14 +4,17 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Optional;
 
+import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.transaction.annotation.Transactional;
+
 import com.stratumtech.realtyauthuser.entity.User;
 import com.stratumtech.realtyauthuser.dto.mapper.UserMapper;
 import com.stratumtech.realtyauthuser.repository.UserRepository;
 import com.stratumtech.realtyauthuser.exception.UserNotFoundException;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
-
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 public abstract class DefaultUserServiceImpl<D, E extends User> implements UserService<D> {
@@ -38,8 +41,10 @@ public abstract class DefaultUserServiceImpl<D, E extends User> implements UserS
     public boolean delete(UUID uuid) {
         if (userRepository.existsById(uuid)) {
             userRepository.deleteById(uuid);
+            log.debug("Delete user '{}' from database", uuid);
             return true;
         }
+        log.debug("User '{}' not found in database", uuid);
         return false;
     }
 
@@ -54,15 +59,20 @@ public abstract class DefaultUserServiceImpl<D, E extends User> implements UserS
     }
 
     private boolean updateBlockStatus(UUID uuid, boolean shouldBeBlocked){
+        log.debug("Search exists user");
         E user = userRepository.findById(uuid)
                 .orElseThrow(() -> new UserNotFoundException(uuid));
 
+        log.debug("Check if user '{}' is blocked", uuid);
         if (user.getIsBlocked() == shouldBeBlocked) {
+            log.debug("Status not updated for user '{}'", uuid);
             return false;
         }
 
         user.setIsBlocked(shouldBeBlocked);
         userRepository.save(user);
+        log.debug("Status updated for user '{}'", uuid);
+
         return true;
     }
 }
