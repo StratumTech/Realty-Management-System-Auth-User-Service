@@ -3,6 +3,7 @@ package com.stratumtech.realtyauthuser.dto.mapper;
 import java.util.List;
 import java.util.UUID;
 
+import com.stratumtech.realtyauthuser.dto.request.AgentApprovalDTO;
 import org.mapstruct.*;
 
 import com.stratumtech.realtyauthuser.entity.Agent;
@@ -61,4 +62,9 @@ public interface AgentMapper extends UserMapper<AgentDTO, Agent>{
     default String mapCharArray(char[] password) {
         return password == null ? null : new String(password);
     }
+
+    @Mapping(target = "role",     ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "adminUuid", source = "approverAdminUuid")
+    AgentCreateDTO toCreateDTO(AgentApprovalDTO approve);
 }

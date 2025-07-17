@@ -8,7 +8,6 @@ import lombok.Builder;
 @Getter
 @Builder
 public final class AgentApprovalDTO {
-    private UUID approverAdminUuid;
     private String name;
     private String patronymic;
     private String surname;
@@ -16,6 +15,6 @@ public final class AgentApprovalDTO {
     private String phone;
     private String telegramTag;
     private String preferChannel;
-    private String referralCode;
-    private Integer regionId;
+    private String imageUrl;
+    private UUID approverAdminUuid;
 } 

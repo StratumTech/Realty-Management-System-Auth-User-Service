@@ -17,6 +17,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,6 +35,7 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import com.stratumtech.realtyauthuser.config.filter.FindUserCredentialsFilter;
 import com.stratumtech.realtyauthuser.service.TokenAuthenticationUserDetailsService;
 import com.stratumtech.realtyauthuser.config.authorization.filter.CatchLoginRequestFilter;
+import com.stratumtech.realtyauthuser.config.authorization.factory.DefaultTokenCookieFactory;
 import com.stratumtech.realtyauthuser.config.authorization.filter.CatchCsrfTokenRequestFilter;
 import com.stratumtech.realtyauthuser.config.authorization.serializer.TokenCookieJweStringSerializer;
 import com.stratumtech.realtyauthuser.config.authorization.strategy.TokenCookieSessionAuthenticationStrategy;
@@ -41,6 +43,7 @@ import com.stratumtech.realtyauthuser.config.authorization.strategy.TokenCookieS
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
 
     private final FindUserCredentialsFilter findUserCredentialsFilter;
@@ -73,9 +76,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             CatchLoginRequestFilter catchLoginRequestFilter,
-            TokenCookieJweStringSerializer tokenCookieJweStringSerializer) throws Exception {
-        final var tokenCookieSessionAuthenticationStrategy = new TokenCookieSessionAuthenticationStrategy();
-        tokenCookieSessionAuthenticationStrategy.setTokenStringSerializer(tokenCookieJweStringSerializer);
+            SessionAuthenticationStrategy sessionStrategy
+            ) throws Exception {
 
         http
                 .addFilterBefore(catchCsrfTokenRequestFilter, ExceptionTranslationFilter.class)
@@ -83,11 +85,12 @@ public class SecurityConfig {
                 .addFilterBefore(findUserCredentialsFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/agents/{uuid}").permitAll()
                         .requestMatchers("/api/v1/agents/**").authenticated()
                         .anyRequest().permitAll()
                 ).sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                        .sessionAuthenticationStrategy(tokenCookieSessionAuthenticationStrategy)
+                        .sessionAuthenticationStrategy(sessionStrategy)
                 )
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(new CookieCsrfTokenRepository())
@@ -100,10 +103,15 @@ public class SecurityConfig {
 
     @Bean
     public SessionAuthenticationStrategy tokenCookieSessionAuthenticationStrategy(
+            @Value("${jwt.token.ttl}") Integer tokenTTLInSeconds,
             TokenCookieJweStringSerializer tokenCookieJweStringSerializer
     ) {
         var strategy = new TokenCookieSessionAuthenticationStrategy();
         strategy.setTokenStringSerializer(tokenCookieJweStringSerializer);
+        strategy.setTokenCookieFactory(
+                new DefaultTokenCookieFactory()
+                    .setTokenTTL(tokenTTLInSeconds)
+        );
         return strategy;
     }
 

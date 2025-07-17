@@ -41,7 +41,6 @@ public class TokenCookieJweStringSerializer implements Function<Token, String> {
                 .build();
         var claimsSet = new JWTClaimsSet.Builder()
                 .jwtID(token.id().toString())
-                .claim("region", token.region())
                 .claim("role", token.role())
                 .issueTime(Date.from(token.createdAt()))
                 .expirationTime(Date.from(token.expiresAt()))

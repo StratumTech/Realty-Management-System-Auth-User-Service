@@ -2,6 +2,7 @@ package com.stratumtech.realtyauthuser.dto.mapper;
 
 import java.util.List;
 
+import com.stratumtech.realtyauthuser.dto.request.AdminApprovalDTO;
 import org.mapstruct.*;
 
 import com.stratumtech.realtyauthuser.entity.Administrator;
@@ -15,7 +16,7 @@ import com.stratumtech.realtyauthuser.dto.request.AdminUpdateDTO;
         uses = { RoleMapper.class, RegionMapper.class },
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 )
-public interface AdministratorMapper extends UserMapper<AdminDTO, Administrator> {
+public interface AdminMapper extends UserMapper<AdminDTO, Administrator> {
 
     @Mapping(target = "adminUuid", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
@@ -55,4 +56,8 @@ public interface AdministratorMapper extends UserMapper<AdminDTO, Administrator>
     default String mapCharArray(char[] password) {
         return password == null ? null : new String(password);
     }
+
+    @Mapping(target = "role",     ignore = true)
+    @Mapping(target = "password", ignore = true)
+    AdminCreateDTO toCreateDTO(AdminApprovalDTO approval);
 }

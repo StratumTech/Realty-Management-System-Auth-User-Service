@@ -7,13 +7,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.stratumtech.realtyauthuser.dto.mapper.AdminMapper;
+
 import com.stratumtech.realtyauthuser.entity.Role;
 import com.stratumtech.realtyauthuser.entity.Administrator;
 
 import com.stratumtech.realtyauthuser.dto.AdminDTO;
 import com.stratumtech.realtyauthuser.dto.request.AdminCreateDTO;
 import com.stratumtech.realtyauthuser.dto.request.AdminUpdateDTO;
-import com.stratumtech.realtyauthuser.dto.mapper.AdministratorMapper;
 
 import com.stratumtech.realtyauthuser.repository.RoleRepository;
 import com.stratumtech.realtyauthuser.repository.AdministratorRepository;
@@ -28,14 +29,14 @@ public class AdministratorServiceImpl
         extends DefaultUserServiceImpl<AdminDTO, Administrator>
         implements AdministratorService {
 
-    private final AdministratorMapper adminMapper;
+    private final AdminMapper adminMapper;
 
     private final PasswordEncoder passwordEncoder;
 
     private final RoleRepository roleRepository;
     private final AdministratorRepository adminRepository;
 
-    public AdministratorServiceImpl(AdministratorMapper adminMapper,
+    public AdministratorServiceImpl(AdminMapper adminMapper,
                                     PasswordEncoder passwordEncoder,
                                     RoleRepository roleRepository,
                                     AdministratorRepository adminRepository) {

@@ -3,6 +3,7 @@ package com.stratumtech.realtyauthuser.dto.request;
 import java.util.UUID;
 import java.util.Arrays;
 
+import lombok.Setter;
 import lombok.Getter;
 import lombok.Builder;
 import lombok.AccessLevel;
@@ -14,54 +15,61 @@ import jakarta.validation.constraints.NotEmpty;
 import com.stratumtech.realtyauthuser.validation.PhoneNumber;
 import com.stratumtech.realtyauthuser.validation.TelegramTag;
 
+@Setter
 @Getter
 @Builder
 public final class AgentCreateDTO {
 
     @NotNull
     @NotEmpty
-    private final String role;
+    private String role;
 
     @NotNull
     @NotEmpty
-    private final String name;
+    private String name;
 
     @NotNull
     @NotEmpty
-    private final String patronymic;
+    private String patronymic;
 
     @NotNull
     @NotEmpty
-    private final String surname;
+    private String surname;
 
     @Email
     @NotNull
-    private final String email;
+    private String email;
 
     @NotNull
     @PhoneNumber
-    private final String phone;
+    private String phone;
 
     @NotNull
     @NotEmpty
+    @Setter(AccessLevel.NONE)
     @Getter(AccessLevel.NONE)
-    private final char[] password;
+    private char[] password;
 
     @NotNull
     @TelegramTag
-    private final String telegramTag;
+    private String telegramTag;
 
     @NotNull
     @NotEmpty
-    private final String preferChannel;
+    private String preferChannel;
 
     @NotNull
-    private final String imageUrl;
+    private String imageUrl;
 
     @NotNull
     private UUID adminUuid;
 
     public char[] getPassword() {
         return Arrays.copyOf(password, password.length);
+    }
+
+    public void setPassword(char[] password) {
+        this.password = new char[password.length];
+        System.arraycopy(password, 0, this.password, 0, password.length);
     }
 }
