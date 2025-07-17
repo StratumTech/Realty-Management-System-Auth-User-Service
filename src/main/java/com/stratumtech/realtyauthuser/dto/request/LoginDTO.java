@@ -17,5 +17,5 @@ public final class LoginDTO {
 
     @NotNull
     @NotEmpty
-    private final String password;
+    private final char[] password;
 }

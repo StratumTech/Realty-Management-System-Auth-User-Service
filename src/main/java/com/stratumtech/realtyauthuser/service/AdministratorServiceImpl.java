@@ -1,37 +1,59 @@
 package com.stratumtech.realtyauthuser.service;
 
-import com.stratumtech.realtyauthuser.entity.Administrator;
-import com.stratumtech.realtyauthuser.repository.AdministratorRepository;
-import com.stratumtech.realtyauthuser.repository.RoleRepository;
-import com.stratumtech.realtyauthuser.repository.RegionRepository;
+import java.util.List;
+import java.util.UUID;
+import java.util.Optional;
+
+import com.stratumtech.realtyauthuser.dto.AdministratorDTO;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import com.stratumtech.realtyauthuser.entity.Administrator;
+import com.stratumtech.realtyauthuser.repository.RoleRepository;
+import com.stratumtech.realtyauthuser.repository.RegionRepository;
+import com.stratumtech.realtyauthuser.repository.AdministratorRepository;
 
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class AdministratorService {
-    private final AdministratorRepository administratorRepository;
+
     private final RoleRepository roleRepository;
     private final RegionRepository regionRepository;
+    private final AdministratorRepository administratorRepository;
 
-    public AdministratorService(AdministratorRepository administratorRepository, RoleRepository roleRepository, RegionRepository regionRepository) {
-        this.administratorRepository = administratorRepository;
-        this.roleRepository = roleRepository;
-        this.regionRepository = regionRepository;
-    }
-
-    public List<Administrator> getAllAdmins() {
+    @Transactional(readOnly = true)
+    public List<AdministratorDTO> getAllAdmins() {
         return administratorRepository.findAll();
     }
 
-    public Optional<Administrator> getAdminByUuid(UUID adminUuid) {
+    @Transactional(readOnly = true)
+    public Optional<AdministratorDTO> getAdminByUuid(UUID adminUuid) {
         return administratorRepository.findById(adminUuid);
     }
 
-    @Transactional
+    public Optional<AdministratorDTO> updateAdmin(UUID adminUuid, Administrator updated) {
+        Optional<Administrator> adminOpt = administratorRepository.findById(adminUuid);
+        if (adminOpt.isPresent()) {
+            Administrator admin = adminOpt.get();
+            if (updated.getName() != null) admin.setName(updated.getName());
+            if (updated.getPatronymic() != null) admin.setPatronymic(updated.getPatronymic());
+            if (updated.getSurname() != null) admin.setSurname(updated.getSurname());
+            if (updated.getEmail() != null) admin.setEmail(updated.getEmail());
+            if (updated.getPhone() != null) admin.setPhone(updated.getPhone());
+            if (updated.getTelegramTag() != null) admin.setTelegramTag(updated.getTelegramTag());
+            if (updated.getPreferChannel() != null) admin.setPreferChannel(updated.getPreferChannel());
+            if (updated.getReferral() != null) admin.setReferral(updated.getReferral());
+            if (updated.getRole() != null) admin.setRole(updated.getRole());
+            if (updated.getRegion() != null) admin.setRegion(updated.getRegion());
+            administratorRepository.save(admin);
+            return Optional.of(admin);
+        }
+        return Optional.empty();
+    }
+
     public boolean blockAdmin(UUID adminUuid) {
         Optional<Administrator> adminOpt = administratorRepository.findById(adminUuid);
         if (adminOpt.isPresent()) {
@@ -43,7 +65,6 @@ public class AdministratorService {
         return false;
     }
 
-    @Transactional
     public boolean unblockAdmin(UUID adminUuid) {
         Optional<Administrator> adminOpt = administratorRepository.findById(adminUuid);
         if (adminOpt.isPresent()) {
@@ -55,8 +76,7 @@ public class AdministratorService {
         return false;
     }
 
-    @Transactional
-    public Optional<Administrator> updateAdmin(UUID adminUuid, Administrator updated) {
+    public Optional<AdministratorDTO> updateAdmin(UUID adminUuid, Administrator updated) {
         Optional<Administrator> adminOpt = administratorRepository.findById(adminUuid);
         if (adminOpt.isPresent()) {
             Administrator admin = adminOpt.get();
