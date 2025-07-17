@@ -5,12 +5,11 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.time.temporal.ChronoUnit;
 
-import com.stratumtech.realtyauthuser.config.authorization.factory.DefaultTokenCookieFactory;
+import lombok.Setter;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import lombok.Setter;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +17,7 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 
 import com.stratumtech.realtyauthuser.model.Token;
+import com.stratumtech.realtyauthuser.config.authorization.factory.DefaultTokenCookieFactory;
 
 @Setter
 public class TokenCookieSessionAuthenticationStrategy implements SessionAuthenticationStrategy {

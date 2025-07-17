@@ -1,4 +1,7 @@
-package com.stratumtech.realtyauthuser.config;
+package com.stratumtech.realtyauthuser.config.filter;
+
+import java.io.IOException;
+import java.util.Collections;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,9 +13,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-
-import java.io.IOException;
-import java.util.Collections;
 
 @Component
 public class FindUserCredentialsFilter extends OncePerRequestFilter {
