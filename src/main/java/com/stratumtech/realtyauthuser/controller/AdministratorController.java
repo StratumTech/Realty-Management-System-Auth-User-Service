@@ -101,7 +101,6 @@ public class AdministratorController {
     }
 
     private UUID findUserUuid(Authentication authentication){
-        final var tokenUser = (TokenUser) authentication.getPrincipal();
-        return UUID.fromString(tokenUser.getUsername());
+        return (UUID) authentication.getPrincipal();
     }
 }

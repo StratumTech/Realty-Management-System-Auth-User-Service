@@ -2,6 +2,7 @@ package com.stratumtech.realtyauthuser.config.filter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.UUID;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -33,17 +34,8 @@ public class FindUserCredentialsFilter extends OncePerRequestFilter {
             String role = "ROLE_" + roleHeader.toUpperCase();
 
             var authority = new SimpleGrantedAuthority(role);
-
-            final var tokenUser = new TokenUser(
-                    uuidHeader, "",
-                    role.lines()
-                            .map(SimpleGrantedAuthority::new)
-                            .toList(),
-                    null
-            );
-
             var authentication = new UsernamePasswordAuthenticationToken(
-                    tokenUser, null, Collections.singletonList(authority));
+                    UUID.fromString(uuidHeader), null, Collections.singletonList(authority));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

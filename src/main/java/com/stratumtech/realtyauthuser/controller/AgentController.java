@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.access.annotation.Secured;
 
-import com.stratumtech.realtyauthuser.model.TokenUser;
 import com.stratumtech.realtyauthuser.service.AgentService;
 
 import com.stratumtech.realtyauthuser.dto.AgentDTO;
@@ -87,7 +86,6 @@ public class AgentController {
     }
 
     private UUID findUserUuid(Authentication authentication){
-        final var tokenUser = (TokenUser) authentication.getPrincipal();
-        return UUID.fromString(tokenUser.getUsername());
+        return (UUID) authentication.getPrincipal();
     }
 }
