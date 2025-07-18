@@ -2,7 +2,6 @@ package com.stratumtech.realtyauthuser.dto.mapper;
 
 import java.util.List;
 
-import com.stratumtech.realtyauthuser.dto.request.AdminApprovalDTO;
 import org.mapstruct.*;
 
 import com.stratumtech.realtyauthuser.entity.Administrator;
@@ -10,6 +9,7 @@ import com.stratumtech.realtyauthuser.entity.Administrator;
 import com.stratumtech.realtyauthuser.dto.AdminDTO;
 import com.stratumtech.realtyauthuser.dto.request.AdminCreateDTO;
 import com.stratumtech.realtyauthuser.dto.request.AdminUpdateDTO;
+import com.stratumtech.realtyauthuser.dto.request.AdminApprovalDTO;
 
 @Mapper(
         componentModel = "spring",
@@ -29,6 +29,7 @@ public interface AdminMapper extends UserMapper<AdminDTO, Administrator> {
     @Mapping(target = "password", source = "password", qualifiedByName = "mapCharArray")
     Administrator toAdmin(AdminCreateDTO request);
 
+    @Mapping(target = "adminUuid", source = "id")
     @Mapping(target = "role", source = "role", qualifiedByName = "mapRoleName")
     @Mapping(target = "regionId", source = "region", qualifiedByName = "mapRegionId")
     AdminDTO toDto(Administrator admin);

@@ -3,7 +3,6 @@ package com.stratumtech.realtyauthuser.dto.mapper;
 import java.util.List;
 import java.util.UUID;
 
-import com.stratumtech.realtyauthuser.dto.request.AgentApprovalDTO;
 import org.mapstruct.*;
 
 import com.stratumtech.realtyauthuser.entity.Agent;
@@ -12,6 +11,7 @@ import com.stratumtech.realtyauthuser.entity.Administrator;
 import com.stratumtech.realtyauthuser.dto.*;
 import com.stratumtech.realtyauthuser.dto.request.AgentCreateDTO;
 import com.stratumtech.realtyauthuser.dto.request.AgentUpdateDTO;
+import com.stratumtech.realtyauthuser.dto.request.AgentApprovalDTO;
 
 @Mapper(
         componentModel = "spring",
@@ -28,6 +28,7 @@ public interface AgentMapper extends UserMapper<AgentDTO, Agent>{
     @Mapping(target = "password", source = "password", qualifiedByName = "mapCharArray")
     Agent toAgent(AgentCreateDTO request);
 
+    @Mapping(target = "agentUuid", source = "id")
     @Mapping(target = "role", source = "role", qualifiedByName = "mapRoleName")
     @Mapping(target = "adminUuid", source = "administrator", qualifiedByName = "mapToUuid")
     AgentDTO toDto(Agent agent);
