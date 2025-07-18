@@ -36,7 +36,7 @@ INSERT INTO administrators (
     'Global',
     'admin.global@example.com',
     '+49123456789',
-    'password',                             -- в продакшене храните хеш!
+    '$2a$12$KdisoCqyCxQJ3NIXmMlePuDbU1Y/BWI3vtKpRawvl5uQypbi4qYX6', -- закодированное BCrypt значение 'password'
     '@globaladmin',
     'email',
     NULL,                                   -- referral

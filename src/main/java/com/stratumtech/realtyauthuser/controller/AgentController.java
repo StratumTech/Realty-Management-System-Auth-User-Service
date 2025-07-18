@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.access.annotation.Secured;
 
+import com.stratumtech.realtyauthuser.model.TokenUser;
 import com.stratumtech.realtyauthuser.service.AgentService;
 
 import com.stratumtech.realtyauthuser.dto.AgentDTO;
@@ -33,7 +34,7 @@ public class AgentController {
     @GetMapping
     @Secured({"ROLE_REGIONAL_ADMIN"})
     public ResponseEntity<List<AgentDTO>> getAllAgents(Authentication authentication) {
-        final var userUuid = (UUID) authentication.getPrincipal();
+        final var userUuid = findUserUuid(authentication);
 
         List<AgentDTO> agents = agentService.getAll().stream()
                 .takeWhile(agent -> agent.getAdminUuid().equals(userUuid))
@@ -56,7 +57,7 @@ public class AgentController {
                                                 @Valid @RequestBody AgentUpdateDTO agentUpdate,
                                                 Authentication authentication
     ) {
-        final var userUuid = (UUID) authentication.getPrincipal();
+        final var userUuid = findUserUuid(authentication);
 
         if(!userUuid.equals(agentUuid)) {
             log.warn("Trying to update agent with uuid {}", userUuid);
@@ -83,5 +84,10 @@ public class AgentController {
         return agentService.unblock(agentUuid)
                 ? ResponseEntity.ok().build()
                 : ResponseEntity.unprocessableEntity().build();
+    }
+
+    private UUID findUserUuid(Authentication authentication){
+        final var tokenUser = (TokenUser) authentication.getPrincipal();
+        return UUID.fromString(tokenUser.getUsername());
     }
 }

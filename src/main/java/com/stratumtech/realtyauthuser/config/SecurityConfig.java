@@ -26,6 +26,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 
+import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
@@ -90,7 +91,7 @@ public class SecurityConfig {
                         .anyRequest().permitAll()
                 ).sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                        .sessionAuthenticationStrategy(sessionStrategy)
+                        .sessionAuthenticationStrategy(new NullAuthenticatedSessionStrategy())
                 )
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(new CookieCsrfTokenRepository())

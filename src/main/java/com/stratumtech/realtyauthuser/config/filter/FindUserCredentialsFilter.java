@@ -14,6 +14,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
+import com.stratumtech.realtyauthuser.model.TokenUser;
+
 @Component
 public class FindUserCredentialsFilter extends OncePerRequestFilter {
     private static final String HEADER_USER_ROLE = "X-USER-ROLE";
@@ -31,8 +33,17 @@ public class FindUserCredentialsFilter extends OncePerRequestFilter {
             String role = "ROLE_" + roleHeader.toUpperCase();
 
             var authority = new SimpleGrantedAuthority(role);
+
+            final var tokenUser = new TokenUser(
+                    uuidHeader, "",
+                    role.lines()
+                            .map(SimpleGrantedAuthority::new)
+                            .toList(),
+                    null
+            );
+
             var authentication = new UsernamePasswordAuthenticationToken(
-                    uuidHeader, null, Collections.singletonList(authority));
+                    tokenUser, null, Collections.singletonList(authority));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

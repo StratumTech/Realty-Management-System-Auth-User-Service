@@ -17,6 +17,7 @@ import org.springframework.security.access.annotation.Secured;
 import com.stratumtech.realtyauthuser.dto.AdminDTO;
 import com.stratumtech.realtyauthuser.dto.request.AdminUpdateDTO;
 
+import com.stratumtech.realtyauthuser.model.TokenUser;
 import com.stratumtech.realtyauthuser.service.AdministratorService;
 
 import com.stratumtech.realtyauthuser.exception.UserNotFoundException;
@@ -33,7 +34,7 @@ public class AdministratorController {
     @GetMapping
     @Secured("ROLE_ADMIN")
     public ResponseEntity<List<AdminDTO>> getAllAdmins(Authentication authentication) {
-        final var userUuid = (UUID) authentication.getPrincipal();
+        final var userUuid = findUserUuid(authentication);
 
         List<AdminDTO> admins = adminService.getAll().stream()
                 .dropWhile(admin -> admin.getAdminUuid().equals(userUuid))
@@ -46,7 +47,7 @@ public class AdministratorController {
     @Secured({"ROLE_ADMIN", "ROLE_REGIONAL_ADMIN"})
     public ResponseEntity<AdminDTO> getAdmin(@PathVariable UUID adminUuid,
                                              Authentication authentication) {
-        final var userUuid = (UUID) authentication.getPrincipal();
+        final var userUuid = findUserUuid(authentication);
 
         String userRole = authentication.getAuthorities()
                             .stream().findFirst().get().getAuthority();
@@ -70,7 +71,7 @@ public class AdministratorController {
                                                 @RequestBody AdminUpdateDTO adminUpdate,
                                                 Authentication authentication
     ) {
-        final var userUuid = (UUID) authentication.getPrincipal();
+        final var userUuid = findUserUuid(authentication);
 
         if(!userUuid.equals(adminUuid)) {
             log.warn("Trying to update admin with uuid {}", adminUuid);
@@ -97,5 +98,10 @@ public class AdministratorController {
         return adminService.unblock(adminUuid)
                 ? ResponseEntity.ok().build()
                 : ResponseEntity.unprocessableEntity().build();
+    }
+
+    private UUID findUserUuid(Authentication authentication){
+        final var tokenUser = (TokenUser) authentication.getPrincipal();
+        return UUID.fromString(tokenUser.getUsername());
     }
 }
