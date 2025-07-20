@@ -10,20 +10,38 @@ INSERT INTO regions (region_id, name, created_at) VALUES
 (2, 'South Region', CURRENT_TIMESTAMP);
 
 -- Инициализация глобального администратора
-INSERT INTO administrators (admin_uuid, role_id, region_id, name, surname, email, phone, password, telegram_tag, prefer_channel, referal, created_at, updated_at, is_blocked)
-VALUES (
+INSERT INTO administrators (
+    admin_uuid,
+    role_id,
+    region_id,
+    name,
+    patronymic,
+    surname,
+    email,
+    phone,
+    password,
+    telegram_tag,
+    prefer_channel,
+    referral,
+    image_url,
+    created_at,
+    updated_at,
+    is_blocked
+) VALUES (
     gen_random_uuid(),
-    1, -- ADMIN
-    NULL, -- Нет региона для глобального администратора
+    1,                                      -- ADMIN
+    NULL,                                   -- глобальному админу регион не нужен
     'Admin',
+    NULL,                                   -- patronymic
     'Global',
     'admin.global@example.com',
     '+49123456789',
-    'password', -- Какой-то пароль
+    '$2a$12$KdisoCqyCxQJ3NIXmMlePuDbU1Y/BWI3vtKpRawvl5uQypbi4qYX6', -- закодированное BCrypt значение 'password'
     '@globaladmin',
     'email',
-    NULL, -- Глобальному администратору не нужна реферальная ссылка
+    NULL,                                   -- referral
+    NULL,                                   -- image_url
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP,
-    false
-); 
+    FALSE
+);

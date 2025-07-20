@@ -6,7 +6,7 @@ import java.util.UUID;
 
 @Getter
 @Builder
-public final class AdministratorDTO {
+public final class AdminDTO {
     private final UUID adminUuid;
     private final String name;
     private final String patronymic;

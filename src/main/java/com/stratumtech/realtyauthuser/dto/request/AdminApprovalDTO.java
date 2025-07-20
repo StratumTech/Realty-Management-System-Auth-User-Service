@@ -1,9 +1,11 @@
-package com.stratumtech.realtyauthuser.dto;
+package com.stratumtech.realtyauthuser.dto.request;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Builder;
 
-@Data
-public class AgentUpdateDTO {
+@Getter
+@Builder
+public final class AdminApprovalDTO {
     private String name;
     private String patronymic;
     private String surname;
@@ -12,6 +14,4 @@ public class AgentUpdateDTO {
     private String telegramTag;
     private String preferChannel;
     private String imageUrl;
-    private String password;
-    private String role;
-}
+} 

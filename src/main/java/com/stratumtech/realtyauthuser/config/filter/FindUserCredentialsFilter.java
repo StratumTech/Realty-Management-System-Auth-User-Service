@@ -1,17 +1,21 @@
-package com.stratumtech.realtyauthuser.config;
+package com.stratumtech.realtyauthuser.config.filter;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.UUID;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-import java.util.Collections;
+import com.stratumtech.realtyauthuser.model.TokenUser;
 
 @Component
 public class FindUserCredentialsFilter extends OncePerRequestFilter {
@@ -31,7 +35,7 @@ public class FindUserCredentialsFilter extends OncePerRequestFilter {
 
             var authority = new SimpleGrantedAuthority(role);
             var authentication = new UsernamePasswordAuthenticationToken(
-                    uuidHeader, null, Collections.singletonList(authority));
+                    UUID.fromString(uuidHeader), null, Collections.singletonList(authority));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

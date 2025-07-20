@@ -1,10 +1,10 @@
 package com.stratumtech.realtyauthuser.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-import lombok.Data;
-import lombok.ToString;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import jakarta.persistence.*;
 
@@ -15,13 +15,14 @@ import jakarta.persistence.*;
 public class Administrator extends User {
 
     @Id
+    @Getter(AccessLevel.NONE)
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "admin_uuid", nullable = false, updatable = false)
     private UUID adminUuid;
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
@@ -35,5 +36,14 @@ public class Administrator extends User {
     private String referral;
 
     @OneToMany(mappedBy = "administrator")
-    private java.util.List<Agent> agents;
+    private List<Agent> agents = new ArrayList<>();
+
+    public void addAgent(Agent agent){
+        agents.add(agent);
+    }
+
+    @Override
+    public UUID getId() {
+        return this.adminUuid;
+    }
 }

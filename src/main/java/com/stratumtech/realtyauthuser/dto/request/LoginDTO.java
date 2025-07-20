@@ -1,7 +1,10 @@
-package com.stratumtech.realtyauthuser.dto;
+package com.stratumtech.realtyauthuser.dto.request;
+
+import java.util.Arrays;
 
 import lombok.Getter;
 import lombok.Builder;
+import lombok.AccessLevel;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -17,5 +20,10 @@ public final class LoginDTO {
 
     @NotNull
     @NotEmpty
-    private final String password;
+    @Getter(AccessLevel.NONE)
+    private final char[] password;
+
+    private char[] getPassword() {
+        return Arrays.copyOf(password, password.length);
+    }
 }
