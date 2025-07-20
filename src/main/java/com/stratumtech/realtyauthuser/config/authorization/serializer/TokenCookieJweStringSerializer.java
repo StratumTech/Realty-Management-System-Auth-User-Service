@@ -39,12 +39,17 @@ public class TokenCookieJweStringSerializer implements Function<Token, String> {
         var jwsHeader = new JWEHeader.Builder(this.jweAlgorithm, this.encryptionMethod)
                 .build();
         var claimsSet = new JWTClaimsSet.Builder()
-                .jwtID(token.id().toString())
-                .claim("role", token.role())
-                .issueTime(Date.from(token.createdAt()))
-                .expirationTime(Date.from(token.expiresAt()))
-                .build();
-        var encryptedJWT = new EncryptedJWT(jwsHeader, claimsSet);
+                .jwtID(token.getId().toString())
+                .claim("role", token.getRole())
+                .issueTime(Date.from(token.getCreatedAt()))
+                .expirationTime(Date.from(token.getExpiresAt()));
+
+        if(token.getRole().endsWith("REGIONAL_ADMIN")){
+            claimsSet.claim("adminRegionId", token.getAdminRegionId());
+            claimsSet.claim("adminReferralCode", token.getAdminReferralCode());
+        }
+
+        var encryptedJWT = new EncryptedJWT(jwsHeader, claimsSet.build());
         try {
             encryptedJWT.encrypt(this.jweEncrypter);
             return encryptedJWT.serialize();

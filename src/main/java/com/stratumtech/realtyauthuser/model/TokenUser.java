@@ -12,13 +12,9 @@ public class TokenUser extends User {
 
     private final Token token;
 
-    public TokenUser(String username,
-                     String password,
-                     Collection<? extends GrantedAuthority> roles,
-                     Token token) {
-        super(username, password, roles);
-        this.token = token;
-    }
+    private final Long adminRegionId;
+
+    private final String adminReferralCode;
 
     public TokenUser(String username,
                      String password,
@@ -27,5 +23,20 @@ public class TokenUser extends User {
                      Token token) {
         super(username, password, true, true, true, accountNonLocked, roles);
         this.token = token;
+        this.adminReferralCode = null;
+        this.adminRegionId = null;
+    }
+
+    public TokenUser(String username,
+                     String password,
+                     Long adminRegionId,
+                     String adminReferralCode,
+                     boolean accountNonLocked,
+                     Collection<? extends GrantedAuthority> roles,
+                     Token token) {
+        super(username, password, true, true, true, accountNonLocked, roles);
+        this.token = token;
+        this.adminRegionId = adminRegionId;
+        this.adminReferralCode = adminReferralCode;
     }
 }

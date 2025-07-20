@@ -17,7 +17,6 @@ import org.springframework.security.access.annotation.Secured;
 import com.stratumtech.realtyauthuser.dto.AdminDTO;
 import com.stratumtech.realtyauthuser.dto.request.AdminUpdateDTO;
 
-import com.stratumtech.realtyauthuser.model.TokenUser;
 import com.stratumtech.realtyauthuser.service.AdministratorService;
 
 import com.stratumtech.realtyauthuser.exception.UserNotFoundException;

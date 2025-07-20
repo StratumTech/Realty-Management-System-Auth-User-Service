@@ -75,12 +75,6 @@ dependencyManagement {
 tasks.named('test') {
 	useJUnitPlatform()
 }
-// Ensure secrets file is loaded if present
-bootRun {
-    if (file("src/main/resources/application-secrets.properties").exists()) {
-        systemProperty "spring.config.additional-location", "classpath:application-secrets.properties"
-    }
-}
 
 // Ensure secrets file is loaded if present
 bootRun {
@@ -88,3 +82,4 @@ bootRun {
         systemProperty "spring.config.additional-location", "classpath:application-secrets.properties"
     }
 }
+

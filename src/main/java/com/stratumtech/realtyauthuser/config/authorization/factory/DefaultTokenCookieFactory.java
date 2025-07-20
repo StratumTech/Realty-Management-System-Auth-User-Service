@@ -18,14 +18,18 @@ public class DefaultTokenCookieFactory implements Function<Authentication, Token
     public Token apply(Authentication authentication) {
         var now = Instant.now();
         final var tokenUser = (TokenUser) authentication.getPrincipal();
-        return new Token(
-                UUID.fromString(tokenUser.getUsername()),
-                tokenUser.getAuthorities().stream()
+        return Token.builder()
+                .id(UUID.fromString(tokenUser.getUsername()))
+                .role(tokenUser.getAuthorities().stream()
                         .findFirst()
                         .get()
-                        .getAuthority(),
-                now, now.plus(Duration.ofSeconds(tokenTTLInSeconds))
-        );
+                        .getAuthority()
+                )
+                .adminRegionId(tokenUser.getAdminRegionId())
+                .adminReferralCode(tokenUser.getAdminReferralCode())
+                .createdAt(now)
+                .expiresAt(now.plus(Duration.ofSeconds(tokenTTLInSeconds)))
+                .build();
     }
 
     public DefaultTokenCookieFactory setTokenTTL(Integer tokenTTLInSeconds) {

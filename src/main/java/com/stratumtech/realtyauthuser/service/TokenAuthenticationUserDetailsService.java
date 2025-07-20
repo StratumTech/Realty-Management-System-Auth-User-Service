@@ -3,6 +3,7 @@ package com.stratumtech.realtyauthuser.service;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import com.stratumtech.realtyauthuser.entity.Administrator;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Component;
@@ -34,17 +35,36 @@ public class TokenAuthenticationUserDetailsService implements UserDetailsService
         if (foundUser.isPresent()) {
             final var user = foundUser.get();
             final boolean accountNonLocked = !user.getIsBlocked();
-            return new TokenUser(
-                    user.getId().toString(),
-                    user.getPassword(),
-                    accountNonLocked,
-                    user.getRole()
-                            .getName()
-                            .lines()
-                            .map(SimpleGrantedAuthority::new)
-                            .toList(),
-                    null
-            );
+            final String role = user.getRole().getName();
+
+            if(role.endsWith("REGIONAL_ADMIN")){
+                var admin = (Administrator) user;
+                return new TokenUser(
+                        admin.getId().toString(),
+                        admin.getPassword(),
+                        admin.getRegion().getId(),
+                        admin.getReferral(),
+                        accountNonLocked,
+                        user.getRole()
+                                .getName()
+                                .lines()
+                                .map(SimpleGrantedAuthority::new)
+                                .toList(),
+                        null
+                );
+            }else{
+                return new TokenUser(
+                        user.getId().toString(),
+                        user.getPassword(),
+                        accountNonLocked,
+                        user.getRole()
+                                .getName()
+                                .lines()
+                                .map(SimpleGrantedAuthority::new)
+                                .toList(),
+                        null
+                );
+            }
         } else throw new UsernameNotFoundException("User not found");
     }
 

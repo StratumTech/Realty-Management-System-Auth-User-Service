@@ -40,7 +40,7 @@ public class TokenCookieSessionAuthenticationStrategy implements SessionAuthenti
             cookie.setDomain(null);
             cookie.setSecure(true);
             cookie.setHttpOnly(true);
-            cookie.setMaxAge((int) ChronoUnit.SECONDS.between(Instant.now(), token.expiresAt()));
+            cookie.setMaxAge((int) ChronoUnit.SECONDS.between(Instant.now(), token.getExpiresAt()));
 
             response.addCookie(cookie);
         }
